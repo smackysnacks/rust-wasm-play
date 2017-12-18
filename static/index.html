@@ -12,6 +12,15 @@
           WebAssembly.instantiate(bytes)
         ).then(function(results) {
           console.log('example()', results.instance.exports.example());
+
+          const linearMemory = results.instance.exports.memory;
+          const offset = results.instance.exports.hello();
+          const stringBuffer = new Uint8Array(linearMemory.buffer, offset);
+          let str = '';
+          for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
+            str += String.fromCharCode(stringBuffer[i]);
+          }
+          console.log(str);
         });
     </script>
   </body>
