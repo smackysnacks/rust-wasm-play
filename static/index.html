@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Simple template</title>
+  </head>
+  <body>
+    <script>
+        fetch('fractals.wasm').then(response =>
+          response.arrayBuffer()
+        ).then(bytes =>
+          WebAssembly.instantiate(bytes)
+        ).then(function(results) {
+          console.log('example()', results.instance.exports.example());
+        });
+    </script>
+  </body>
+</html>
+
