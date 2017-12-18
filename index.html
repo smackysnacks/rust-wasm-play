@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Simple template</title>
+  </head>
+  <body>
+    <script>
+        window.Module = {};
+
+        const imports = {
+            env: {
+                alert: function(ptr) {
+                    const stringBuffer = new Uint8Array(Module.memory.buffer, ptr);
+                    let s = '';
+                    for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
+                        s += String.fromCharCode(stringBuffer[i]);
+                    }
+                    alert(s);
+                }
+            }
+        };
+
+        fetch('fractals.wasm').then(response =>
+          response.arrayBuffer()
+        ).then(bytes =>
+          WebAssembly.instantiate(bytes, imports)
+        ).then(function(results) {
+          Module.memory = results.instance.exports.memory;
+
+          console.log('example()', results.instance.exports.example());
+
+          const offset = results.instance.exports.hello();
+          const stringBuffer = new Uint8Array(Module.memory.buffer, offset);
+          let str = '';
+          for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
+            str += String.fromCharCode(stringBuffer[i]);
+          }
+          console.log(str);
+
+          results.instance.exports.call_alert();
+        });
+    </script>
+  </body>
+</html>
+
