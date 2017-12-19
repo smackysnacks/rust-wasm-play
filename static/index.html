@@ -8,17 +8,21 @@
     <script>
         window.Module = {};
 
+        function ffiCString(p) {
+          const stringBuffer = new Uint8Array(Module.memory.buffer, p);
+          let s = '';
+          for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
+            s += String.fromCharCode(stringBuffer[i]);
+          }
+          return s;
+        }
+
         const imports = {
-            env: {
-                alert: function(ptr) {
-                    const stringBuffer = new Uint8Array(Module.memory.buffer, ptr);
-                    let s = '';
-                    for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
-                        s += String.fromCharCode(stringBuffer[i]);
-                    }
-                    alert(s);
-                }
+          env: {
+            alert: function(ptr) {
+              alert(ffiCString(ptr));
             }
+          }
         };
 
         fetch('fractals.wasm').then(response =>
@@ -31,12 +35,7 @@
           console.log('example()', results.instance.exports.example());
 
           const offset = results.instance.exports.hello();
-          const stringBuffer = new Uint8Array(Module.memory.buffer, offset);
-          let str = '';
-          for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
-            str += String.fromCharCode(stringBuffer[i]);
-          }
-          console.log(str);
+          console.log(ffiCString(offset));
 
           results.instance.exports.call_alert();
         });

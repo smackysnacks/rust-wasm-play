@@ -1,9 +1,7 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 
-extern {
-    fn alert(ptr: *const c_char);
-}
+mod js;
 
 #[no_mangle]
 pub fn example() -> i32 {
@@ -17,8 +15,6 @@ pub fn hello() -> *mut c_char {
 
 #[no_mangle]
 pub fn call_alert() {
-    unsafe {
-        let s = CString::new("Hello, world!").unwrap();
-        alert(s.as_ptr());
-    }
+    let s = CString::new("Hello, world!").unwrap();
+    js::alert(&s);
 }
