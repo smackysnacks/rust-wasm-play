@@ -5,20 +5,28 @@
     <title>Simple template</title>
   </head>
   <body>
+    <button onclick="Module.exports.clickme_clicked()">Click me</button>
     <script>
         window.Module = {};
 
+        function ffiCString(p) {
+          const stringBuffer = new Uint8Array(Module.memory.buffer, p);
+          let s = '';
+          for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
+            s += String.fromCharCode(stringBuffer[i]);
+          }
+          return s;
+        }
+
         const imports = {
-            env: {
-                alert: function(ptr) {
-                    const stringBuffer = new Uint8Array(Module.memory.buffer, ptr);
-                    let s = '';
-                    for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
-                        s += String.fromCharCode(stringBuffer[i]);
-                    }
-                    alert(s);
-                }
+          env: {
+            alert: function(ptr) {
+              alert(ffiCString(ptr));
+            },
+            log: function(ptr) {
+              console.log(ffiCString(ptr));
             }
+          }
         };
 
         fetch('fractals.wasm').then(response =>
@@ -27,18 +35,14 @@
           WebAssembly.instantiate(bytes, imports)
         ).then(function(results) {
           Module.memory = results.instance.exports.memory;
+          Module.exports = results.instance.exports;
 
-          console.log('example()', results.instance.exports.example());
+          console.log('example()', Module.exports.example());
 
-          const offset = results.instance.exports.hello();
-          const stringBuffer = new Uint8Array(Module.memory.buffer, offset);
-          let str = '';
-          for (let i = 0; i < stringBuffer.length && stringBuffer[i] != 0; i++) {
-            str += String.fromCharCode(stringBuffer[i]);
-          }
-          console.log(str);
+          const offset = Module.exports.hello();
+          console.log(ffiCString(offset));
 
-          results.instance.exports.call_alert();
+          Module.exports.call_js();
         });
     </script>
   </body>
