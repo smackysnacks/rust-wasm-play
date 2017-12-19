@@ -14,7 +14,7 @@ pub fn hello() -> *mut c_char {
 }
 
 #[no_mangle]
-pub fn call_alert() {
-    let s = CString::new("Hello, world!").unwrap();
-    js::alert(&s);
+pub fn call_js() {
+    js::alert("Hello, world!");
+    js::log("Hello, world!");
 }

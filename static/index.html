@@ -21,6 +21,9 @@
           env: {
             alert: function(ptr) {
               alert(ffiCString(ptr));
+            },
+            log: function(ptr) {
+              console.log(ffiCString(ptr));
             }
           }
         };
@@ -31,13 +34,14 @@
           WebAssembly.instantiate(bytes, imports)
         ).then(function(results) {
           Module.memory = results.instance.exports.memory;
+          Module.exports = results.instance.exports;
 
-          console.log('example()', results.instance.exports.example());
+          console.log('example()', Module.exports.example());
 
-          const offset = results.instance.exports.hello();
+          const offset = Module.exports.hello();
           console.log(ffiCString(offset));
 
-          results.instance.exports.call_alert();
+          Module.exports.call_js();
         });
     </script>
   </body>
