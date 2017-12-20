@@ -6,6 +6,7 @@
   </head>
   <body>
     <button onclick="Module.exports.clickme_clicked()">Click me</button>
+    <canvas id="screen" width="500" height="500"></canvas>
     <script>
         window.Module = {};
 
@@ -25,7 +26,8 @@
             },
             log: function(ptr) {
               console.log(ffiCString(ptr));
-            }
+            },
+            cos: Math.cos
           }
         };
 
@@ -43,6 +45,42 @@
           console.log(ffiCString(offset));
 
           Module.exports.call_js();
+
+
+          let module = {};
+          let mod = results.instance;
+          module.alloc   = mod.exports.alloc;
+          module.dealloc = mod.exports.dealloc;
+          module.fill    = mod.exports.fill;
+
+          var width  = 500;
+          var height = 500;
+
+
+          var canvas = document.getElementById('screen');
+          if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+
+            let byteSize = width * height * 4;
+            var pointer = module.alloc( byteSize );
+
+            var usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
+            var img = new ImageData(usub, width, height);
+
+            var start = null;
+            function step(timestamp) {
+              var progress;
+              if (start === null) start = timestamp;
+              progress = timestamp - start;
+              module.fill(pointer, width, height, timestamp);
+
+              start = timestamp
+
+              ctx.putImageData(img, 0, 0)
+              window.requestAnimationFrame(step);
+            }
+            window.requestAnimationFrame(step);
+          }
         });
     </script>
   </body>
