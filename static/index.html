@@ -67,23 +67,8 @@
             var usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
             var img = new ImageData(usub, width, height);
 
-            var start = null;
             function step(timestamp) {
-              var progress;
-              if (start === null) start = timestamp;
-              progress = timestamp - start;
-              if (progress > 100) {
-                module.fill(pointer, width, height, timestamp);
-
-                start = timestamp
-
-                window.requestAnimationFrame(draw);
-              } else {
-                window.requestAnimationFrame(step);
-              }
-            }
-
-            function draw() {
+              module.fill(pointer, width, height);
               ctx.putImageData(img, 0, 0)
               window.requestAnimationFrame(step);
             }

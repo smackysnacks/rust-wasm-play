@@ -14,6 +14,8 @@ lazy_static! {
     static ref CLICK_COUNT: AtomicUsize = AtomicUsize::new(1);
 }
 
+static mut FILL_INC: f64 = 0f64;
+
 #[no_mangle]
 pub fn example() -> i32 {
     42
@@ -47,7 +49,7 @@ pub extern "C" fn alloc(size: usize) -> *mut c_void {
 }
 
 #[no_mangle]
-pub fn fill(pointer: *mut u32, max_width: usize, max_height: usize, time: f64) {
+pub fn fill(pointer: *mut u32, max_width: usize, max_height: usize) {
     // pixels are stored in RGBA, so each pixel is 4 bytes
     let sl = unsafe { slice::from_raw_parts_mut(pointer, max_width*max_height) };
 
@@ -57,14 +59,16 @@ pub fn fill(pointer: *mut u32, max_width: usize, max_height: usize, time: f64) {
         let width  = i % max_width;
 
         let len = ((height*height + width*width) as f64).sqrt();
-        let nb = time  + len / 4.0;
+        let nb = unsafe { FILL_INC + len / 4.0 };
         let r = 128.0 + nb.cos() * 128.0;
 
         let width = 500 - width;
         let len = ((height*height + width*width) as f64).sqrt();
-        let nb = time  + len / 4.0;
+        let nb = unsafe { FILL_INC + len / 4.0 };
         let b = 128.0 + nb.cos() * 128.0;
 
         sl[i] = 0xff << 24 | (b as u8 as u32) << 16 | 0x00 << 8 | (r as u8 as u32);
     }
+
+    unsafe { FILL_INC -= 0.3; }
 }
