@@ -1,4 +1,4 @@
-## [Demo](https://rmbreak.github.io/fractals/)
+## [Demo](https://rmbreak.github.io/rust-wasm-play/)
 
 ```
 $ rustup install nightly
