@@ -1,8 +1,8 @@
 ## [Demo](https://rmbreak.github.io/rust-wasm-play/)
 
 ```
-$ rustup install nightly
-$ rustup target add --toolchain nightly wasm32-unknown-unknown
+$ rustup update
+$ rustup target add wasm32-unknown-unknown
 $ make
 ```
 
